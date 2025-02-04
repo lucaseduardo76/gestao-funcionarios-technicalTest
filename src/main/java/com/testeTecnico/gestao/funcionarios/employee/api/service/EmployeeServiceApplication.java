@@ -1,5 +1,6 @@
 package com.testeTecnico.gestao.funcionarios.employee.api.service;
 
+import com.testeTecnico.gestao.funcionarios.employee.exception.exception.NotFoundException;
 import com.testeTecnico.gestao.funcionarios.employee.model.dto.*;
 import com.testeTecnico.gestao.funcionarios.employee.model.entitie.Adress;
 import com.testeTecnico.gestao.funcionarios.employee.model.entitie.Employee;
@@ -14,8 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,7 +30,7 @@ public class EmployeeServiceApplication implements EmployeeService {
     public ResponseEmployeeDTO save(RequestEmployeeDTO requestEmployeeDTO) {
         log.info("[inicia] EmployeeServiceApplication - save");
 
-        Adress adress = handleBuildAdrees(requestEmployeeDTO.getAdress());
+        Adress adress = handleBuildAddress(requestEmployeeDTO.getAddress());
         Employee employee = handleBuildEmployee(requestEmployeeDTO, adress);
         handleBuildPhonenumber(requestEmployeeDTO.getFirstPhone(), employee);
 
@@ -56,7 +55,7 @@ public class EmployeeServiceApplication implements EmployeeService {
     public ResponseEmployeeDTO findById(String id) {
         log.info("[inicia] EmployeeServiceApplication - findById");
         Employee employee = employeeRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Erro ao buscar o id " + id)
+                () -> new NotFoundException("Employee not found, check Id")
         );
         log.info("[fim] EmployeeServiceApplication - findById");
         return handleBuildResponseEmployee(employee);
@@ -67,7 +66,7 @@ public class EmployeeServiceApplication implements EmployeeService {
         log.info("[inicia] EmployeeServiceApplication - update");
 
         Employee employee = employeeRepository.findById(updateEmployeeDTO.getId()).orElseThrow(
-                () -> new RuntimeException("Erro ao buscar o id " + updateEmployeeDTO.getId())
+                () -> new NotFoundException("Employee not found, check Id")
         );
 
 
@@ -89,7 +88,7 @@ public class EmployeeServiceApplication implements EmployeeService {
     public void delete(String id) {
         log.info("[inicia] EmployeeServiceApplication - delete");
         Employee employee = employeeRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Erro ao buscar o id " + id)
+                () -> new NotFoundException("Employee not found, check Id")
         );
         Adress adressToDelete = employee.getAdress();
         employeeRepository.delete(employee);
@@ -138,8 +137,8 @@ public class EmployeeServiceApplication implements EmployeeService {
         return employeeRepository.save(employee);
     }
 
-    private Adress handleBuildAdrees(RequestAdressDTO requestAdressDTO){
-        log.info("[inicia] EmployeeServiceApplication - handleBuildAdrees");
+    private Adress handleBuildAddress(RequestAddressDTO requestAdressDTO){
+        log.info("[inicia] EmployeeServiceApplication - handleBuildAddress");
         Adress adress = Adress.builder()
                 .city(capitalizeName(requestAdressDTO.getCity()))
                 .country(capitalizeName(requestAdressDTO.getCountry()))
@@ -148,13 +147,13 @@ public class EmployeeServiceApplication implements EmployeeService {
                 .zip(formatNumber(requestAdressDTO.getZip()))
                 .number(requestAdressDTO.getNumber())
                 .build();
-        log.info("[fim] EmployeeServiceApplication - handleBuildAdrees");
+        log.info("[fim] EmployeeServiceApplication - handleBuildAddress");
 
         return adressRepository.save(adress);
     }
 
     private void handleBuildPhonenumber(String phoneNumber, Employee employee) {
-        log.info("[inicia] EmployeeServiceApplication - handleBuildPhonenumber");
+        log.info("[inicia] EmployeeServiceApplication - handleBuildPhoneNumber");
 
         String formattedPhone = formatNumber(phoneNumber);
 
@@ -164,7 +163,7 @@ public class EmployeeServiceApplication implements EmployeeService {
                 .build();
         phoneNumberRepository.save(pn);
 
-        log.info("[fim] EmployeeServiceApplication - handleBuildPhonenumber");
+        log.info("[fim] EmployeeServiceApplication - handleBuildPhoneNumber");
     }
 
     private String formatNumber(String phoneNumber) {

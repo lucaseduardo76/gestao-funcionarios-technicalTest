@@ -1,6 +1,5 @@
 package com.testeTecnico.gestao.funcionarios.employee.model.dto;
 
-import com.testeTecnico.gestao.funcionarios.employee.model.role.EmployeeRole;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RequestAdressDTO {
+public class RequestAddressDTO {
 
     @NotEmpty(message = "street cannot be empty")
     private String street;
