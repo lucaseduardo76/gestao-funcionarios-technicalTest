@@ -15,7 +15,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true  # Exibe as consultas SQL no console para depuração
+    show-sql: false  # Exibe as consultas SQL no console para depuração
     properties:
       hibernate:
         format_sql: true

@@ -12,9 +12,9 @@ public interface EmployeeService {
 
     ResponseEmployeeDTO save(RequestEmployeeDTO requestEmployeeDTO);
     List<ResponseEmployeeDTO> findAllEmployees();
-    ResponseEmployeeDTO findById(UUID id);
+    ResponseEmployeeDTO findById(String id);
     void update(UpdateEmployeeDTO updateEmployeeDTO);
-    void delete(UUID id);
+    void delete(String id);
     void deleteAllEmployees();
 
 }

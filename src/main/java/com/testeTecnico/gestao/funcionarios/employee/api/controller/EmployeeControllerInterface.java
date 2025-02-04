@@ -24,7 +24,7 @@ public interface EmployeeControllerInterface {
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseEmployeeDTO> findEmployeeById(@PathVariable UUID id);
+    public ResponseEntity<ResponseEmployeeDTO> findEmployeeById(@PathVariable String id);
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping
@@ -32,7 +32,7 @@ public interface EmployeeControllerInterface {
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("delete/{id}")
-    public void deleteEmployee(@PathVariable UUID id);
+    public void deleteEmployee(@PathVariable String id);
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("delete/all")

@@ -10,10 +10,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UpdateEmployeeDTO {
 
+    private String id;
     private String name;
     private EmployeeRole role;
     private Double salary;
     private String firstPhone;
     private String secondPhone;
     private UpdateAdressDTO adress;
+
+
 }

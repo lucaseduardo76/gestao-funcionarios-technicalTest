@@ -50,7 +50,7 @@ public class EmployeeControllerApplication implements EmployeeControllerInterfac
     }
 
     @Override
-    public ResponseEntity<ResponseEmployeeDTO> findEmployeeById(UUID id) {
+    public ResponseEntity<ResponseEmployeeDTO> findEmployeeById(String id) {
         log.info("[inicia] EmployeControllerApplication - findEmployeeById");
         var employee = employeeService.findById(id);
         log.info("[fim] EmployeControllerApplication - findEmployeeById");
@@ -66,7 +66,7 @@ public class EmployeeControllerApplication implements EmployeeControllerInterfac
     }
 
     @Override
-    public void deleteEmployee(UUID id) {
+    public void deleteEmployee(String id) {
         log.info("[inicia] EmployeControllerApplication - deleteEmployee");
         employeeService.delete(id);
         log.info("[fim] EmployeControllerApplication - deleteEmployee");

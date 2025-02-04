@@ -1,12 +1,10 @@
 package com.testeTecnico.gestao.funcionarios.employee.api.service;
 
-import com.testeTecnico.gestao.funcionarios.employee.model.dto.RequestAdressDTO;
-import com.testeTecnico.gestao.funcionarios.employee.model.dto.RequestEmployeeDTO;
-import com.testeTecnico.gestao.funcionarios.employee.model.dto.ResponseEmployeeDTO;
-import com.testeTecnico.gestao.funcionarios.employee.model.dto.UpdateEmployeeDTO;
+import com.testeTecnico.gestao.funcionarios.employee.model.dto.*;
 import com.testeTecnico.gestao.funcionarios.employee.model.entitie.Adress;
 import com.testeTecnico.gestao.funcionarios.employee.model.entitie.Employee;
 import com.testeTecnico.gestao.funcionarios.employee.model.entitie.PhoneNumber;
+import com.testeTecnico.gestao.funcionarios.employee.model.role.EmployeeRole;
 import com.testeTecnico.gestao.funcionarios.employee.repository.AdressRepository;
 import com.testeTecnico.gestao.funcionarios.employee.repository.EmployeeRepository;
 import com.testeTecnico.gestao.funcionarios.employee.repository.PhoneNumberRepository;
@@ -16,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -33,9 +32,7 @@ public class EmployeeServiceApplication implements EmployeeService {
         log.info("[inicia] EmployeeServiceApplication - save");
 
         Adress adress = handleBuildAdrees(requestEmployeeDTO.getAdress());
-
         Employee employee = handleBuildEmployee(requestEmployeeDTO, adress);
-
         handleBuildPhonenumber(requestEmployeeDTO.getFirstPhone(), employee);
 
         if(requestEmployeeDTO.getSecondPhone() != null)
@@ -43,31 +40,87 @@ public class EmployeeServiceApplication implements EmployeeService {
 
 
         log.info("[fim] EmployeeServiceApplication - save");
-        return null;
+        return handleBuildResponseEmployee(employee);
     }
+
 
     @Override
     public List<ResponseEmployeeDTO> findAllEmployees() {
-        return List.of();
+        log.info("[inicia] EmployeeServiceApplication - findAllEmployees");
+        List<Employee> employees = employeeRepository.findAll();
+        log.info("[fim] EmployeeServiceApplication - findAllEmployees");
+        return employees.stream().map(this::handleBuildResponseEmployee).toList();
     }
 
     @Override
-    public ResponseEmployeeDTO findById(UUID id) {
-        return null;
+    public ResponseEmployeeDTO findById(String id) {
+        log.info("[inicia] EmployeeServiceApplication - findById");
+        Employee employee = employeeRepository.findById(id).orElseThrow(
+                () -> new RuntimeException("Erro ao buscar o id " + id)
+        );
+        log.info("[fim] EmployeeServiceApplication - findById");
+        return handleBuildResponseEmployee(employee);
     }
 
     @Override
     public void update(UpdateEmployeeDTO updateEmployeeDTO) {
+        log.info("[inicia] EmployeeServiceApplication - update");
 
+        Employee employee = employeeRepository.findById(updateEmployeeDTO.getId()).orElseThrow(
+                () -> new RuntimeException("Erro ao buscar o id " + updateEmployeeDTO.getId())
+        );
+
+
+        if (employee != null) {
+            employee.setPhoneNumber(phoneNumberRepository.findAllByOwnerId(employee.getId()));
+            updateName(employee, updateEmployeeDTO.getName());
+            updateRole(employee, updateEmployeeDTO.getRole());
+            updateSalary(employee, updateEmployeeDTO.getSalary());
+            updatePhoneNumbers(employee, updateEmployeeDTO);
+            updateAdress(employee, updateEmployeeDTO.getAdress());
+
+
+            employeeRepository.save(employee);
+        }
+        log.info("[fim] EmployeeServiceApplication - update");
     }
 
     @Override
-    public void delete(UUID id) {
-
+    public void delete(String id) {
+        log.info("[inicia] EmployeeServiceApplication - delete");
+        Employee employee = employeeRepository.findById(id).orElseThrow(
+                () -> new RuntimeException("Erro ao buscar o id " + id)
+        );
+        Adress adressToDelete = employee.getAdress();
+        employeeRepository.delete(employee);
+        handleDeleteAdress(adressToDelete);
+        log.info("[fim] EmployeeServiceApplication - delete");
     }
 
     @Override
     public void deleteAllEmployees() {
+        log.info("[inicia] EmployeeServiceApplication - deleteAllEmployees");
+        employeeRepository.deleteAll();
+        adressRepository.deleteAll();
+        log.info("[fim] EmployeeServiceApplication - deleteAllEmployees");
+    }
+
+    private ResponseEmployeeDTO handleBuildResponseEmployee(Employee employee) {
+        log.info("[inicia] EmployeeServiceApplication - handleBuildResponseEmployee");
+
+        employee.setPhoneNumber(phoneNumberRepository.findAllByOwnerId(employee.getId()));
+
+        ResponseEmployeeDTO responseEmployeeDTO = ResponseEmployeeDTO.builder()
+                .id(employee.getId())
+                .name(employee.getName())
+                .role(employee.getRole())
+                .salary(employee.getSalary())
+                .adress(employee.getAdress())
+                .phoneNumber(employee.getPhoneNumber())
+                .build();
+
+        log.info("[fim] EmployeeServiceApplication - handleBuildResponseEmployee");
+        return responseEmployeeDTO;
 
     }
 
@@ -79,17 +132,19 @@ public class EmployeeServiceApplication implements EmployeeService {
                 .salary(requestEmployeeDTO.getSalary())
                 .adress(adress)
                 .build();
+
         log.info("[fim] EmployeeServiceApplication - handleBuildEmployee");
-        return employee;
+
+        return employeeRepository.save(employee);
     }
 
     private Adress handleBuildAdrees(RequestAdressDTO requestAdressDTO){
         log.info("[inicia] EmployeeServiceApplication - handleBuildAdrees");
         Adress adress = Adress.builder()
-                .city(requestAdressDTO.getCity())
-                .country(requestAdressDTO.getCountry())
-                .street(requestAdressDTO.getStreet())
-                .state(requestAdressDTO.getState())
+                .city(capitalizeName(requestAdressDTO.getCity()))
+                .country(capitalizeName(requestAdressDTO.getCountry()))
+                .street(capitalizeName(requestAdressDTO.getStreet()))
+                .state((requestAdressDTO.getState()))
                 .zip(formatNumber(requestAdressDTO.getZip()))
                 .number(requestAdressDTO.getNumber())
                 .build();
@@ -124,6 +179,61 @@ public class EmployeeServiceApplication implements EmployeeService {
         return Arrays.stream(name.trim().split("\\s+"))
                 .map(word -> Character.toUpperCase(word.charAt(0)) + word.substring(1).toLowerCase())
                 .collect(Collectors.joining(" "));
+    }
+
+
+    private void updateName(Employee employee, String name) {
+        if (name != null) {
+            employee.setName(name);
+        }
+    }
+
+    private void updateRole(Employee employee, EmployeeRole role) {
+        if (role != null) {
+            employee.setRole(role);
+        }
+    }
+
+    private void updateSalary(Employee employee, Double salary) {
+        if (salary != null) {
+            employee.setSalary(salary);
+        }
+    }
+
+    private void updatePhoneNumbers(Employee employee, UpdateEmployeeDTO updateEmployeeDTO) {
+        if (updateEmployeeDTO.getFirstPhone() != null && !employee.getPhoneNumber().isEmpty()) {
+            employee.getPhoneNumber().get(0).setNumber(updateEmployeeDTO.getFirstPhone());
+            phoneNumberRepository.save(employee.getPhoneNumber().get(0));
+        }
+
+        if (updateEmployeeDTO.getSecondPhone() != null) {
+            if (employee.getPhoneNumber().size() > 1) {
+                employee.getPhoneNumber().get(1).setNumber(updateEmployeeDTO.getSecondPhone());
+                phoneNumberRepository.save(employee.getPhoneNumber().get(1));
+            } else {
+                addPhoneNumber(employee, updateEmployeeDTO.getSecondPhone());
+            }
+        }
+    }
+
+    private void addPhoneNumber(Employee employee, String phoneNumber) {
+        PhoneNumber phone = new PhoneNumber();
+        phone.setNumber(phoneNumber);
+        phone.setOwner(employee);
+        phoneNumberRepository.save(phone);
+    }
+
+    private void updateAdress(Employee employee, UpdateAdressDTO adressDTO) {
+        if (adressDTO != null && employee.getAdress() != null) {
+            Adress updatedAdress = adressDTO.toEntity(employee.getAdress());
+            adressRepository.save(updatedAdress);
+        }
+    }
+
+    private void handleDeleteAdress(Adress adress) {
+        log.info("[fim] EmployeeServiceApplication - handleDeleteAdress");
+        adressRepository.delete(adress);
+        log.info("[fim] EmployeeServiceApplication - handleDeleteAdress");
     }
 
 }
