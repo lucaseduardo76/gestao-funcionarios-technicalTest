@@ -131,10 +131,5 @@ public class PhoneNumber {
 
 ---
 
-## 📌 Contato
-Caso tenha dúvidas ou sugestões, entre em contato pelo e-mail: **seuemail@example.com**
-
----
-
 📌 **Desenvolvido por [Lucas Eduardo](https://www.linkedin.com/in/lucas-eduardo-silva-071417244/)** 🚀
 
