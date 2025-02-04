@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: "lucas"
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/technical_challenge
+    username: root
+    password: ""
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+
+
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true  # Exibe as consultas SQL no console para depuração
+    properties:
+      hibernate:
+        format_sql: true
+
+
+server:
+  error:
+    include-stacktrace: on_param
+  servlet:
+    context-path: /api
+  forward-headers-strategy: framework
+
+springdoc:
+  swagger-ui:
+    path: /public/swagger
