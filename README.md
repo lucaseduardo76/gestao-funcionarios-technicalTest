@@ -17,17 +17,46 @@ Este projeto é um sistema de gestão de funcionários desenvolvido com **Spring
 ## 📂 Estrutura do Projeto
 
 ```
-/src/main/java/com/testeTecnico/gestao/funcionarios
+com.testeTecnico.gestao.funcionarios
 │
-├── employee/model/entitie
-│   ├── Employee.java
-│   ├── Adress.java
-│   ├── PhoneNumber.java
+├── employee
+│   ├── api
+│   │   ├── controller
+│   │   │   ├── EmployeeControllerApplication
+│   │   │   ├── EmployeeControllerInterface
+│   │   ├── service
+│   │       ├── EmployeeService
+│   │       ├── EmployeeServiceApplication
+│   ├── exception
+│   │   ├── details
+│   │   │   ├── BadRequestDetails
+│   │   │   ├── ExceptionDetails
+│   │   │   ├── MethodNotAllowedDetails
+│   │   │   ├── NotFoundDetails
+│   │   │   ├── ValidationDetails
+│   │   ├── exception
+│   │   │   ├── NotFoundException
+│   │   ├── handler
+│   │       ├── GlobalExceptionHandler
+│   ├── model
+│   │   ├── dto
+│   │   │   ├── RequestAddressDTO
+│   │   │   ├── RequestEmployeeDTO
+│   │   │   ├── ResponseEmployeeDTO
+│   │   │   ├── UpdateAddressDTO
+│   │   │   ├── UpdateEmployeeDTO
+│   │   ├── entitie
+│   │   │   ├── Adress
+│   │   │   ├── Employee
+│   │   │   ├── PhoneNumber
+│   │   ├── role
+│   │       ├── EmployeeRole
+│   ├── repository
+│   │   ├── AdressRepository
+│   │   ├── EmployeeRepository
+│   │   ├── PhoneNumberRepository
 │
-├── employee/model/role
-│   ├── EmployeeRole.java
-│
-├── application.yml (configurações do H2 e JPA)
+├── Application
 ```
 
 ---
